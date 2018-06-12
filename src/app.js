@@ -54,14 +54,14 @@ try {
 }
 
 
-var WebTorrent = require('webtorrent');
-var WebTorrentClient = new WebTorrent();
-WebTorrentClient.on('torrent', torrent=>{
-  console.log('==WebTorrentClient==.on(torrent)');
-})
-WebTorrentClient.on('error', err=>{
-  console.error('==WebTorrentClient==.on(error)', err);
-})
+// var WebTorrent = require('webtorrent');
+// var WebTorrentClient = new WebTorrent();
+// WebTorrentClient.on('torrent', torrent=>{
+//   console.log('==WebTorrentClient==.on(torrent)');
+// })
+// WebTorrentClient.on('error', err=>{
+//   console.error('==WebTorrentClient==.on(error)', err);
+// })
 
 
 var utilLogger = require("./utils/logging");
@@ -81,7 +81,7 @@ console.log('OLD_INCOMING', process.env.OLD_INCOMING);
 app.mongoDbName = app.argv.MONGODB || process.env.MONGODB;
 global.app = app;
 
-app.WebTorrentClient = WebTorrentClient;
+// app.WebTorrentClient = WebTorrentClient;
 
 app.deepFreeze = function deepFreeze(obj) {
 

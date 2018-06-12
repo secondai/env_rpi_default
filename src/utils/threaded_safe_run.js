@@ -704,7 +704,7 @@ const ThreadedSafeRun = (evalString, context = {}, requires = [], threadEventHan
 
           },
 
-          WebTorrent: app.WebTorrentClient,
+          // WebTorrent: app.WebTorrentClient,
           IPFS: {
             ipfs: app.ipfs,
             onReady: app.ipfsReady,
