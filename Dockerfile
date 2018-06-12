@@ -15,16 +15,17 @@ WORKDIR /usr/src/app
 # Install app dependencies
 
 # Install Node.js dependencies
-COPY package*.json yarn.lock ./
+#COPY package*.json yarn.lock ./
+COPY package*.json ./
 RUN set -ex; yarn install --verbose --no-cache --frozen-lockfile;
 
-RUN yarn global add nodemon dotenv babel-register
+RUN yarn global add nodemon
 
 # Bundle app source
 COPY . .
 
 EXPOSE 7001
 
-CMD [ "npm", "run", "server:dev", "--", "--MONGODB=${MONGODB}" ]
+CMD [ "npm", "run", "pi", "--", "--MONGODB=${MONGODB}" ]
 
 
