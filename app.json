@@ -1,0 +1,22 @@
+{
+  "name": "Second Cloud Single",
+  "description": "A Second designed to run on Heroku",
+  "repository": "https://github.com/nicholasareed/second_env_cloud",
+  "keywords": ["second"],
+
+  "addons": [
+    "heroku-redis",
+    "mongolab"
+  ],
+
+  "env" : {
+  	"STARTUP_REACHABLE_WORDS" : {
+  		"description" : "Words to create address and register Identity/Location",
+  		"value":""
+  	},
+  	"LANGUAGE_SERVER" : {
+  		"description" : "",
+  		"value":"http://lang.second.ngrok.io/graphql"
+  	}
+  }
+}

@@ -1,0 +1,59 @@
+version: '3'
+services:
+  # web:
+  #   build: 
+  #     context: .
+  #   environment:
+  #     - MONGODB
+  #     - PORT_ON
+  #     - LANGUAGE_SERVER
+  #     - BASICS_ZIP_URL
+  #     - DEFAULT_PASSPHRASE
+  #   volumes:
+  #     - .:/usr/src/app
+  #   ports:
+  #     - "${PORT_ON}:7001"
+  #   links:
+  #     - redis
+  #     - mongodb
+  #   depends_on:
+  #     - redis
+  #     - mongodb
+  #     - ipfs
+  redis:
+    image: hypriot/rpi-redis
+  mongodb:
+    image: ftavares/rpi-mongo
+    ports:
+      - "28017:27017"
+  ipfs:
+    # image: ipfs/go-ipfs
+    image: jkms/rpi-go-ipfs
+    container_name: "ipfs"
+    # restart: always
+    expose: # internal links
+      - 4001
+      - 5001
+      - 8080
+    ports: # externally available
+      - 4001:4001
+      - 5001:5001
+      - 8080:8080 
+    volumes:
+      - ipfs-data:/data
+  # ngrok:
+  #   build: https://github.com/nicholasareed/docker-rpi-ngrok.git
+  #   environment:
+  #     - NGROK_AUTH=${NGROK_AUTH}
+  #     - "NGROK_PORT=${COMPOSE_PROJECT_NAME}_web_1:7001"
+  #     - NGROK_SUBDOMAIN=${PUBLIC_SUBDOMAIN}
+  #   links:
+  #     - web:app
+
+  #   # ports:
+  #   #   - "4040:4040"
+
+volumes:
+  ipfs-data:
+
+
