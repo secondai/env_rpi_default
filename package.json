@@ -13,18 +13,18 @@
   "scripts": {
     "prestart": "npm run -s build",
     "server:start": "node dist/index.js",
-    "server:dev": "nodemon src/index.js --exec \"node -r node_modules/dotenv/config\"",
-    "server:dev-inspect": "nodemon src/index.js --exec \"node --inspect=0.0.0.0 -r node_modules/dotenv/config -r babel-register\"",
-    "server:heroku": "node_modules/nodemon/bin/nodemon.js src/index.js --exec \"node -r node_modules/dotenv/config -r babel-register\" --verbose --ignore 'package.json' --ignore 'package.json.*' --ignore 'package-lock.json.*' --ignore 'package-lock.json'",
+    "server:dev": "nodemon src/index.js --exec \"node -r dotenv/config -r babel-register\"",
+    "server:dev-inspect": "nodemon src/index.js --exec \"node --inspect=0.0.0.0 -r dotenv/config -r babel-register\"",
+    "server:heroku": "node_modules/nodemon/bin/nodemon.js src/index.js --exec \"node -r dotenv/config -r babel-register\" --verbose --ignore 'package.json' --ignore 'package.json.*' --ignore 'package-lock.json.*' --ignore 'package-lock.json'",
     "server:clean": "rimraf dist",
     "server:build": "npm run server:clean && mkdir -p dist && babel src -s -D -d dist",
     "server:test": "jest --watch",
     "server:lint": "esw -w src test",
     "heroku-local": "./node_modules/.bin/pm2 start npm -- run heroku-envstart && ./node_modules/.bin/pm2 logs",
-    "heroku-envstart": "node -r node_modules/dotenv/config dist/index.js",
+    "heroku-envstart": "node -r dotenv/config dist/index.js",
     "heroku-postbuild-IGNORE": "npm run server:build",
     "heroku-postbuild":"dh-compose up -d",
-    "pi": "node -r node_modules/dotenv/config src/index.js"
+    "pi": "node -r dotenv/config src/index.js"
   },
   "keywords": [
     "express",
