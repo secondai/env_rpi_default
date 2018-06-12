@@ -14,8 +14,8 @@ COPY package*.json .
 #RUN set -ex; yarn install --verbose --no-cache --frozen-lockfile;
 #RUN yarn global add nodemon
 
-#RUN npm install --verbose
-RUN npm install nodemon babel-register dotenv --verbose
+RUN npm install
+#RUN npm install nodemon babel-register dotenv --verbose
 RUN npm install -g nodemon babel-register dotenv --verbose
 
 # Bundle app source
