@@ -1,35 +1,35 @@
 version: '3'
 services:
-  # web:
-  #   build: 
-  #     context: .
-  #   environment:
-  #     - MONGODB
-  #     - PORT_ON
-  #     - LANGUAGE_SERVER
-  #     - BASICS_ZIP_URL
-  #     - DEFAULT_PASSPHRASE
-  #   volumes:
-  #     - .:/usr/src/app
-  #   ports:
-  #     - "${PORT_ON}:7001"
-  #   links:
-  #     - redis
-  #     - mongodb
-  #   depends_on:
-  #     - redis
-  #     - mongodb
-  #     - ipfs
+  web:
+    build: 
+      context: .
+    environment:
+      - MONGODB
+      - PORT_ON
+      - LANGUAGE_SERVER
+      - BASICS_ZIP_URL
+      - DEFAULT_PASSPHRASE
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - "${PORT_ON}:7001"
+    links:
+      - redis
+      - mongodb
+    depends_on:
+      - redis
+      - mongodb
+      - ipfs
   redis:
     image: hypriot/rpi-redis
   mongodb:
-    image: ftavares/rpi-mongo
+    image: ftavares/rpi-mongo:3.0.9
     ports:
       - "28017:27017"
   ipfs:
     # image: ipfs/go-ipfs
     image: jkms/rpi-go-ipfs
-    container_name: "ipfs"
+    # container_name: "ipfs"
     # restart: always
     expose: # internal links
       - 4001
