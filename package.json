@@ -13,7 +13,7 @@
   "scripts": {
     "prestart": "npm run -s build",
     "server:start": "node dist/index.js",
-    "server:dev": "nodemon src/index.js",
+    "server:dev": "node src/index.js",
     "server:dev-inspect": "nodemon src/index.js --exec \"node --inspect=0.0.0.0 -r dotenv/config -r babel-register\"",
     "server:heroku": "node_modules/nodemon/bin/nodemon.js src/index.js --exec \"node -r dotenv/config -r babel-register\" --verbose --ignore 'package.json' --ignore 'package.json.*' --ignore 'package-lock.json.*' --ignore 'package-lock.json'",
     "server:clean": "rimraf dist",
