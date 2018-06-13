@@ -114,6 +114,7 @@
     "pm2": "2.10.3",
     "pug": "^2.0.0-beta11",
     "queue": "^4.4.2",
+    "reconnecting-websocket": "4.0.0-rc5",
     "redis": "^2.8.0",
     "request": "^2.83.0",
     "request-promise-native": "1.0.5",

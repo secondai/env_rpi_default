@@ -72,7 +72,7 @@ let { PORT = 8080 } = process.env;
 PORT = app.argv.PORT || PORT;
 
 server.listen(PORT, () => {
-  console.info(`Second AI Server is now running on http://localhost:${PORT}`); // eslint-disable-line no-console
+  console.info(`Second AI Server (RPi) is now running on http://localhost:${PORT}`); // eslint-disable-line no-console
   // console.info(
   //   `Second AI Server over web socket with subscriptions is now running on ws://localhost:${PORT}${WS_GQL_PATH}`
   // ); // eslint-disable-line no-console
