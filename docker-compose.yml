@@ -11,9 +11,8 @@ services:
       - LANGUAGE_SERVER
       - BASICS_ZIP_URL
       - DEFAULT_PASSPHRASE
-    volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
+    # volumes:
+    #   - .:/usr/src/app
     ports:
       - "${PORT_ON}:7001"
     links:
