@@ -24,7 +24,7 @@
     "heroku-envstart": "node -r dotenv/config dist/index.js",
     "heroku-postbuild-IGNORE": "npm run server:build",
     "heroku-postbuild":"dh-compose up -d",
-    "pi": "node src/index.js"
+    "pi": "node -r node_modules/dotenv/config src/index.js"
   },
   "keywords": [
     "express",
