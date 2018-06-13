@@ -1306,12 +1306,12 @@ class Second {
 		        	// console.log('NODE2:', node2.parent ? node2.parent.type:null); //, JSON.stringify(node2,null,2));
 		        	try {
 			        	let parent = node.parent;
-			        	if(parent.type.split(':')[0] != 'platform_nodes' || parent.data.platform != 'cloud'){
+			        	if(parent.type.split(':')[0] != 'platform_nodes' || parent.data.platform != 'rpi'){
 			        		return false;
 			        	}
 			        	let appbaseParent = parent.parent;
 			        	if(appbaseParent.type.split(':')[0] == 'app_base' && 
-			        		appbaseParent.data.appId == (process.env.DEFAULT_LAUNCH_APPID || 'cloud_appstore') &&
+			        		appbaseParent.data.appId == (process.env.DEFAULT_LAUNCH_APPID || 'app_rpi_default') &&
 			        		appbaseParent.data.release == 'production'
 			        		){
 			        		// console.log('Found app_base for incoming_from_universe');
