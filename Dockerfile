@@ -11,13 +11,13 @@ RUN curl -o- -L https://yarnpkg.com/install.sh | bash
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
-# Install app dependencies
 COPY . .
 
-RUN yarn install --verbose
+#RUN yarn install --verbose
+RUN yarn install
 
 EXPOSE 7001
 
-CMD [ "npm", "run", "pi", "--", "--MONGODB=${MONGODB}" ]
+CMD [ "npm", "run", "pi" ]
 
 
