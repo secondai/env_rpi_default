@@ -1,11 +1,11 @@
 version: '3'
 services:
   web:
-    image: nickreed/rpi-second:latest
-    # build: 
-    #   context: .
-    #   args: 
-    #     NODE_ENV: "development"
+    # image: nickreed/rpi-second:latest
+    build: 
+      context: .
+      args: 
+        NODE_ENV: "development"
     environment:
       - MONGODB
       - PORT_ON
