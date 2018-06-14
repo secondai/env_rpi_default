@@ -18,12 +18,8 @@ RUN yarn install
 
 COPY . .
 
-## Add the wait script to the image
-ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.2.1/wait /wait
-RUN chmod +x /wait
-
 EXPOSE 7001
 
-CMD /wait && npm run pi
+CMD [ "npm", "run", "pi" ]
 
 

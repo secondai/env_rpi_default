@@ -24,14 +24,17 @@ services:
       - redis
       - mongodb
       - ipfs
+
   redis:
     image: hypriot/rpi-redis
+
   mongodb:
     image: ftavares/rpi-mongo:3.0.9
     hostname: mongodb
     ports:
       - "28017:27017"
     command: ["mongod", "--journal", "--rest"]
+
   ipfs:
     # image: ipfs/go-ipfs
     image: jkms/rpi-go-ipfs
@@ -47,6 +50,13 @@ services:
       - 8080:8080 
     volumes:
       - ipfs-data:/data
+
+  start_dependencies:
+    image: dadarek/wait-for-dependencies
+    depends_on:
+      - mongodb
+    command: mongodb:27017
+    
   # ngrok:
   #   build: https://github.com/nicholasareed/docker-rpi-ngrok.git
   #   environment:
