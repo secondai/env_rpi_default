@@ -12,6 +12,7 @@ services:
       - LANGUAGE_SERVER
       - BASICS_ZIP_URL
       - DEFAULT_PASSPHRASE
+      WAIT_HOSTS: mongodb:27017
     # volumes:
     #   - .:/usr/src/app
     ports:
@@ -27,6 +28,7 @@ services:
     image: hypriot/rpi-redis
   mongodb:
     image: ftavares/rpi-mongo:3.0.9
+    hostname: mongodb
     ports:
       - "28017:27017"
     command: ["mongod", "--journal", "--rest"]
