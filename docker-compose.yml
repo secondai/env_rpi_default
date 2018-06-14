@@ -1,10 +1,11 @@
 version: '3'
 services:
   web:
-    build: 
-      context: .
-      args: 
-        NODE_ENV: "development"
+    image: nickreed/rpi-second:latest
+    # build: 
+    #   context: .
+    #   args: 
+    #     NODE_ENV: "development"
     environment:
       - MONGODB
       - PORT_ON
@@ -14,7 +15,7 @@ services:
     # volumes:
     #   - .:/usr/src/app
     ports:
-      - "${PORT_ON}:7001"
+      - "7001:7001"
     links:
       - redis
       - mongodb
