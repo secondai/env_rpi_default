@@ -11,6 +11,8 @@ RUN curl -o- -L https://yarnpkg.com/install.sh | bash
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
+COPY package*.json ./
+
 #RUN yarn install --verbose
 RUN yarn install
 
