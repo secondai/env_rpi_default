@@ -11,10 +11,10 @@ RUN curl -o- -L https://yarnpkg.com/install.sh | bash
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
-COPY . .
-
 #RUN yarn install --verbose
 RUN yarn install
+
+COPY . .
 
 EXPOSE 7001
 
