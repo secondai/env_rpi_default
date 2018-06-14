@@ -1,7 +1,6 @@
 version: '3'
 services:
   web:
-    # image: nickreed/rpi-second:latest
     build: 
       context: .
       args: 
@@ -12,7 +11,8 @@ services:
       - LANGUAGE_SERVER
       - BASICS_ZIP_URL
       - DEFAULT_PASSPHRASE
-      WAIT_HOSTS: mongodb:27017
+      - WAIT_HOSTS: mongodb:27017
+    # image: nickreed/rpi-second:latest
     # volumes:
     #   - .:/usr/src/app
     ports:
