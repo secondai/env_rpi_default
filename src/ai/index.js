@@ -1,5 +1,4 @@
 
-
 // Load in actions 
 import { 
 	requestData
@@ -768,11 +767,41 @@ eventEmitter.on('command',async (message, socket) => {
 
   		let returnData = true;
 
-  		if(message.action == 'res'){
-  			returnData = requestsCache[message.requestId].res;
+  		// Handle websocket response
+  		// - Cloud -> RPi (this) -> Cloud
+  		if(message.action == 'send' && requestsCache[message.requestId].wsClientId){
+  			// response via websocket
+  			// socketio, or websocket? 
+	  		let responseFunc = requestsCache[message.requestId].socketioResponseFunc;
+  			if(responseFunc){
+  				// socketio request/response 
+	  			console.log('Responding via socketio instead of httpResponse (came in as socketio request)');
+	  			console.log('clientId:', requestsCache[message.requestId].wsClientId);
+					
+					responseFunc(message.data);
+
+  			} else {
+  				// normal websockets 
+	  			console.log('Responding via websocket instead of httpResponse (came in as websocket request)');
+	  			console.log('clientId:', requestsCache[message.requestId].wsClientId);
+	  			console.log('wsRequestId:', requestsCache[message.requestId].keyvalue.wsRequestId,);
+
+	  			let thisWs = app.wsClients[ requestsCache[message.requestId].wsClientId ].ws;
+					
+					thisWs.send(JSON.stringify({
+						requestId: requestsCache[message.requestId].keyvalue.wsRequestId,
+						type: 'response',
+						data: message.data
+					}));
+				}
+
   		} else {
-  			requestsCache[message.requestId].res[message.action](message.data);
-  		}
+	  		if(message.action == 'res'){
+	  			returnData = requestsCache[message.requestId].res;
+	  		} else {
+	  			requestsCache[message.requestId].res[message.action](message.data);
+	  		}
+	  	}
 
 		  eventEmitter.emit(
 		    'response',
@@ -1225,7 +1254,7 @@ class Second {
 
 
 	}
-	runRequest(InputNode, skipWrappingInputNode, reqObj, resObj){
+	runRequest(InputNode, skipWrappingInputNode, reqObj, resObj, wsClientId, socketioResponseFunc){
 
     // wait for memory to be ready!
     return new Promise((resolve, reject)=>{
@@ -1237,7 +1266,9 @@ class Second {
 				keyvalue: {},
 				stack: [],
 				res: resObj,
-				req: reqObj
+				req: reqObj,
+				wsClientId,
+				socketioResponseFunc
 			};
 
 			// clear request cache after 30 seconds 
@@ -1247,7 +1278,7 @@ class Second {
 			}, 30 * 1000);
 
       secondReady.then(async ()=>{
-        console.log('Running web request (expecting express_obj):', InputNode.type); //, this.state.nodesDb);
+        console.log('Running web request (expecting express_obj, websocket_obj):', InputNode.type); //, this.state.nodesDb);
 
         // fetch and run code, pass in 
         // - using a specific "app_base" that is at the root 
@@ -1960,6 +1991,47 @@ const incomingAIRequest = ({ req, res }) => {
 }
 
 
+const incomingAIRequestSocketIO = ({ type, data, clientId, responseFunc }) => {
+
+	return new Promise(async (resolve, reject)=>{
+
+		console.log('Running incomingAIRequestSocketIO');
+
+		await MySecond.runRequest({
+			type: 'socketio_obj:Qmdsfkljsl29',
+			data: {
+				type, // connection, message, close  // TODO? request (response is handled by the requesting function) 
+				data, // the data for the message (null for connection, close) 
+				clientId, // for sending responses via app.wsClients[clientId].socket.send(...) 
+			}
+		}, false, null, null, clientId, responseFunc);
+
+	});
+
+}
+
+const incomingAIRequestWebsocket = ({ type, msg, clientId }) => {
+
+	return new Promise(async (resolve, reject)=>{
+
+		console.log('Running incomingAIRequestWebsocket (OLDOLDOLD)');
+
+		return false;
+
+		await MySecond.runRequest({
+			type: 'websocket_obj:Qmdsfkljsl29',
+			data: {
+				type, // connection, message, close  // TODO? request (response is handled by the requesting function) 
+				msg, // the data for the message (null for connection, close) 
+				clientId // for sending responses via app.wsClients[clientId].ws.send(...) 
+			}
+		}, false, null, null, clientId);
+
+	});
+
+}
+
+
 
 
 // Your AI is going to look for the data in its memory, but if you delete it, then it wont be able to find it. Just like removing a part of your brain, you cant just wish it back in place! 
@@ -1968,6 +2040,8 @@ const incomingAIRequest = ({ req, res }) => {
 export default incomingAIRequest;
 export {
 	incomingAIRequest,
+	incomingAIRequestWebsocket,
+	incomingAIRequestSocketIO,
 	MySecond
 }
 
