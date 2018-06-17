@@ -1278,7 +1278,7 @@ class Second {
 			}, 30 * 1000);
 
       secondReady.then(async ()=>{
-        console.log('Running web request (expecting express_obj, websocket_obj):', InputNode.type); //, this.state.nodesDb);
+        console.log('Running web request (expecting express_obj, websocket_obj, incoming_startup, etc.):', InputNode.type); //, this.state.nodesDb);
 
         // fetch and run code, pass in 
         // - using a specific "app_base" that is at the root 

@@ -477,6 +477,7 @@ const ThreadedSafeRun = (evalString, context = {}, requires = [], threadEventHan
 
       let funcInSandbox = Object.assign({
         universe: {
+          runRequest: app.secondAI.MySecond.runRequest,
           npm: {
             install: npminstall
           },
