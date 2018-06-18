@@ -24,6 +24,8 @@ services:
       - redis
       - mongodb
       - ipfs
+    devices:
+      - "/dev/ttyUSB0:/dev/ttyUSB0"
 
   redis:
     image: hypriot/rpi-redis
@@ -56,7 +58,7 @@ services:
     depends_on:
       - mongodb
     command: mongodb:27017
-    
+
   # ngrok:
   #   build: https://github.com/nicholasareed/docker-rpi-ngrok.git
   #   environment:
