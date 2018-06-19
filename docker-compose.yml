@@ -26,6 +26,8 @@ services:
       - ipfs
     devices:
       - "/dev/ttyUSB0:/dev/ttyUSB0"
+    volumes:
+      - /boot:/boot
 
   redis:
     image: hypriot/rpi-redis
