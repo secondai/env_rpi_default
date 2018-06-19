@@ -11,6 +11,10 @@ FROM resin/rpi-raspbian
 # Make "source" work by replacing shell with bash 
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
+
+RUN apt-key adv --fetch-keys http://dl.yarnpkg.com/debian/pubkey.gpg && \
+    echo "deb http://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+
 RUN sudo apt-get update
 RUN sudo apt-get install -y wget curl
 
@@ -43,7 +47,8 @@ RUN node -v
 RUN npm -v
 
 
-RUN curl -o- -L https://yarnpkg.com/install.sh | bash
+#RUN curl -o- -L https://yarnpkg.com/install.sh | bash
+RUN sudo apt-get install -y yarn
 
 # Create app directory
 RUN mkdir -p /usr/src/app
