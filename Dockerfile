@@ -6,6 +6,7 @@ ARG MONGODB
 #FROM node:carbon
 FROM resin/rpi-raspbian
 
+RUN sudo apt-get update
 RUN sudo apt-get install -y nodejs
 RUN curl -o- -L https://yarnpkg.com/install.sh | bash
 
