@@ -8,6 +8,9 @@ FROM resin/rpi-raspbian
 
 #RUN wget https://nodejs.org/dist/latest-carbon/node-v8.11.3.tar.gz
 
+# Make "source" work by replacing shell with bash 
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh
+
 RUN sudo apt-get update
 RUN sudo apt-get install -y wget curl
 
@@ -26,7 +29,7 @@ RUN mkdir -p $NVM_DIR
 RUN curl --silent -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
 
 # install node and npm
-RUN /bin/bash -c "source $NVM_DIR/nvm.sh" \
+RUN source $NVM_DIR/nvm.sh \
     && nvm install $NODE_VERSION \
     && nvm alias default $NODE_VERSION \
     && nvm use default
