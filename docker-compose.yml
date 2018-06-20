@@ -20,13 +20,14 @@ services:
       - APP_OPEN_GRAPHQL=${APP_OPEN_GRAPHQL}
       - RPI_HOST_AND_PORT=${RPI_HOST_AND_PORT}
       - WAIT_HOSTS=mongodb:27017
-    # volumes:
-    #   - .:/usr/src/app
+    network_mode: host
+    expose:
+      - 7001
     ports:
       - "7001:7001"
-    links:
-      - redis
-      - mongodb
+    # links:
+    #   - redis
+    #   - mongodb
     depends_on:
       - redis
       - mongodb
@@ -39,12 +40,13 @@ services:
 
   redis:
     image: hypriot/rpi-redis
+    ports:
+      - "6379:6379"
 
   mongodb:
     image: ftavares/rpi-mongo:3.0.9
-    hostname: mongodb
     ports:
-      - "28017:27017"
+      - "27017:27017"
     command: ["mongod", "--journal", "--rest"]
 
   ipfs:
