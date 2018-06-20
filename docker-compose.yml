@@ -19,7 +19,7 @@ services:
       - IPFS_PROTOCOL=${IPFS_PROTOCOL}
       - APP_OPEN_GRAPHQL=${APP_OPEN_GRAPHQL}
       - RPI_HOST_AND_PORT=${RPI_HOST_AND_PORT}
-      - WAIT_HOSTS=mongodb:27017
+      - WAIT_HOSTS=127.0.0.1:27017
     network_mode: host
     expose:
       - 7001
@@ -69,7 +69,7 @@ services:
     image: dadarek/wait-for-dependencies
     depends_on:
       - mongodb
-    command: mongodb:27017
+    command: 127.0.0.1:27017
 
   # ngrok:
   #   build: https://github.com/nicholasareed/docker-rpi-ngrok.git
