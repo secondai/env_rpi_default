@@ -48,7 +48,7 @@ RUN npm -v
 
 
 #RUN curl -o- -L https://yarnpkg.com/install.sh | bash
-#RUN sudo apt-get install -y yarn
+RUN sudo apt-get install -y yarn
 
 # Create app directory
 RUN mkdir -p /usr/src/app
