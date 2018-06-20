@@ -483,6 +483,7 @@ const ThreadedSafeRun = (evalString, context = {}, requires = [], threadEventHan
           },
           appBaseClosest,
           platformClosest,
+          process: process,
           env: process.env, // just allow all environment variables to be accessed 
           console,
           lodash,
