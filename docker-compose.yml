@@ -71,6 +71,7 @@ services:
     depends_on:
       - mongodb
     command: mongodb:27017
+    network_mode: host
 
   # ngrok:
   #   build: https://github.com/nicholasareed/docker-rpi-ngrok.git
