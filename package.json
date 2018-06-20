@@ -91,6 +91,7 @@
     "keypress": "0.2.1",
     "live-plugin-manager": "0.12.0",
     "luxon": "0.5.8",
+    "say":"0.8.0",
     "minimist": "^1.2.0",
     "mongoose": "5.0.11",
     "morgan": "^1.9.0",
