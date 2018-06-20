@@ -33,11 +33,14 @@ services:
       - /boot:/boot
 
   redis:
+    hostname: redis
     image: hypriot/rpi-redis
+    network_mode: host
 
   mongodb:
     image: ftavares/rpi-mongo:3.0.9
     hostname: mongodb
+    network_mode: host
     ports:
       - "28017:27017"
     command: ["mongod", "--journal", "--rest"]
