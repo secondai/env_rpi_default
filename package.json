@@ -106,6 +106,7 @@
     "noble":"^1.9.1",
     "bleno":"^0.5.0",
     "npm": "5.7.1",
+    "node-aplay":"^1.0.3",
     "npm-programmatic": "0.0.10",
     "papaparse": "4.3.7",
     "parse-domain": "2.0.0",
