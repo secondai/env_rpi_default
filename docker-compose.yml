@@ -15,8 +15,10 @@ services:
     # image: nickreed/rpi-second:latest
     # volumes:
     #   - .:/usr/src/app
-    ports:
-      - "7001:7001"
+    privileged: true
+    network_mode: host
+    # ports:
+    #   - "7001:7001"
     links:
       - redis
       - mongodb
@@ -26,6 +28,7 @@ services:
       - ipfs
     devices:
       - "/dev/ttyUSB0:/dev/ttyUSB0"
+      - "/dev/ttyAMA0:/dev/ttyAMA0"
     volumes:
       - /boot:/boot
 
