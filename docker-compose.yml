@@ -7,11 +7,18 @@ services:
     #   args: 
     #     NODE_ENV: "development"
     environment:
-      - MONGODB
-      - PORT_ON
-      - LANGUAGE_SERVER
-      - BASICS_ZIP_URL
-      - DEFAULT_PASSPHRASE
+      - BASICS_ZIP_URL=${BASICS_ZIP_URL}
+      - PORT_ON=${PORT_ON}
+      - PORT=${PORT}
+      - MONGODB_CONNECTION=${MONGODB_CONNECTION}
+      - MONGODB=${MONGODB}
+      - REDIS_HOST=${REDIS_HOST}
+      - DEFAULT_PASSPHRASE=${DEFAULT_PASSPHRASE}
+      - IPFS_HOST=${IPFS_HOST}
+      - IPFS_PORT=${IPFS_PORT}
+      - IPFS_PROTOCOL=${IPFS_PROTOCOL}
+      - APP_OPEN_GRAPHQL=${APP_OPEN_GRAPHQL}
+      - RPI_HOST_AND_PORT=${RPI_HOST_AND_PORT}
       - WAIT_HOSTS=mongodb:27017
     # volumes:
     #   - .:/usr/src/app
