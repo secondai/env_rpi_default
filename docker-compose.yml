@@ -70,7 +70,7 @@ services:
     image: dadarek/wait-for-dependencies
     depends_on:
       - mongodb
-    command: mongodb:27017
+    command: 127.0.0.1:27017
     network_mode: host
 
   # ngrok:
