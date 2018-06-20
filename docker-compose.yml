@@ -1,10 +1,11 @@
 version: '3'
 services:
   web:
-    build: 
-      context: .
-      args: 
-        NODE_ENV: "development"
+    # build: 
+    #   context: .
+    #   args: 
+    #     NODE_ENV: "development"
+    image: nickreed/rpi-second:latest
     environment:
       - MONGODB
       - PORT_ON
@@ -12,7 +13,6 @@ services:
       - BASICS_ZIP_URL
       - DEFAULT_PASSPHRASE
       - WAIT_HOSTS=mongodb:27017
-    # image: nickreed/rpi-second:latest
     # volumes:
     #   - .:/usr/src/app
     ports:
