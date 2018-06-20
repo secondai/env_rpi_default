@@ -16,7 +16,7 @@ RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 #    echo "deb http://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
 
 RUN sudo apt-get update
-RUN sudo apt-get install -y wget curl bluetooth bluez libbluetooth-dev libudev-dev build-essential
+RUN sudo apt-get install -y wget curl bluetooth bluez libbluetooth-dev libudev-dev build-essential git
 
 #RUN wget https://nodejs.org/dist/v8.11.3/node-v8.11.3-linux-armv6l.tar.gz \
 # && tar -xzf node-v8.11.3-linux-armv6l.tar.gz \
