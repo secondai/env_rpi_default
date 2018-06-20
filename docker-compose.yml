@@ -45,6 +45,7 @@ services:
     network_mode: host
     expose:
       - 27017
+      - 28017
     ports:
       - "28017:27017"
     command: ["mongod", "--journal", "--rest"]
