@@ -17,11 +17,11 @@ services:
     #   - .:/usr/src/app
     privileged: true
     network_mode: host
-    # ports:
-    #   - "7001:7001"
-    links:
-      - redis
-      - mongodb
+    ports:
+      - "7001:7001"
+    # links:
+    #   - redis
+    #   - mongodb
     depends_on:
       - redis
       - mongodb
