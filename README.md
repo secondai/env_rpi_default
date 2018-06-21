@@ -3,6 +3,22 @@
 # Dockerized for RPI 
 
 
+### Flash SD Card 
+```
+flash -C flash-bootconfig.txt -u flash-user-data.yml https://github.com/hypriot/image-builder-rpi/releases/download/v1.9.0/hypriotos-rpi-v1.9.0.img.zip
+```
+
+On first boot, SD card downloads latest Second from https://github.com/secondai/env_rpi_default 
+
+Runs automatically: 
+```
+curl -o- https://raw.githubusercontent.com/secondai/env_rpi_default/master/install.sh | bash
+```
+
+
+
+### OLD 
+
 https://blog.hypriot.com/getting-started-with-docker-and-mac-on-the-raspberry-pi/ 
 ```
 diskutil unmountdisk /dev/disk4
