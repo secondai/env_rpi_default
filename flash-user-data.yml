@@ -67,6 +67,33 @@ write_files:
       }
     path: /etc/wpa_supplicant/wpa_supplicant.conf
 
+  ## USB Audio and usb capture device 
+  - content: |
+      pcm.!default {
+        type asym
+        capture.pcm "usbmic"
+        playback.pcm "usbspeaker"
+      }
+      pcm.usbmic {
+        type plug
+        slave {
+          pcm "hw:2,0"
+        }
+      }
+      pcm.onboardspeaker {
+        type hw
+        card 0
+      }
+      pcm.usbspeaker {
+        type hw
+        card 1
+      }
+      ctl.!default {
+       type hw card 0
+      }
+  - path: /etc/asound.conf
+
+
 # These commands will be ran once on first boot only
 runcmd:
   # Pickup the hostname changes

@@ -57,8 +57,9 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 #RUN yarn install --verbose
-RUN yarn install --verbose --non-interactive
+#RUN yarn install --verbose --non-interactive
 # RUN npm install --non-interactive
+RUN npm install
 
 COPY . .
 
