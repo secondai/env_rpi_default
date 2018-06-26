@@ -16,6 +16,15 @@ curl -o- https://raw.githubusercontent.com/secondai/env_rpi_default/master/insta
 ```
 
 
+#### Audio 
+
+Eventually could use `/etc/asound.conf` for default sound management (not working atm) 
+
+Record (usb mic) & Play (usb speaker): 
+```
+arecord -D plughw:DEV=0,CARD=Device -f dat -d 3 test1.wav && aplay -D plughw:DEV=0,CARD=Device_1 test1.wav
+```
+
 
 ### OLD 
 

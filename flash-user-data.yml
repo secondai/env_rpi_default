@@ -41,12 +41,17 @@ package_upgrade: false
 #  - ntp
 
 # # WiFi connect to HotSpot
-# To make wifi work with RPi3 and RPi0
 # you also have to set "enable_uart=0" in config.txt
-# See no-uart-config.txt for an example.
 #
 # # - use `wpa_passphrase SSID PASSWORD` to encrypt the psk
 write_files:
+  # Second boot file (base64) 
+  # - base64 boot.sh
+  - encoding: b64
+    content: IyEvdXNyL2Jpbi9lbnYgYmFzaAoKIyBSdW5zIG9uIFJQaSBib290IAojIC0gY2hlY2tzIGZvciAiV2lmaSBBUCBNb2RlIiAKIyAtIHJ1bnMgaW5zdGFsbC5zaCBpZiBub3QgeWV0IGluc3RhbGxlZCAoYW5kIGNvbm5lY3RlZCkgCgo=
+    path: /home/pirate/boot.sh
+
+  ## Wifi Setup 
   - content: |
       allow-hotplug wlan0
       iface wlan0 inet dhcp
@@ -58,8 +63,8 @@ write_files:
       ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
       update_config=1
       network={
-      ssid="Poopship"
-      psk="Eggsbenedict1"
+      ssid=""
+      psk=""
       proto=RSN
       key_mgmt=WPA-PSK
       pairwise=CCMP
@@ -68,6 +73,7 @@ write_files:
     path: /etc/wpa_supplicant/wpa_supplicant.conf
 
   ## USB Audio and usb capture device 
+  # - should get updated on boot with ACTUAL hardware/card info (0/1) 
   - content: |
       pcm.!default {
         type asym
@@ -102,3 +108,5 @@ runcmd:
   # Activate WiFi interface
   - 'ifup wlan0'
 
+  # Boot.sh for second
+  - 'bash /home/pirate/boot.sh'
