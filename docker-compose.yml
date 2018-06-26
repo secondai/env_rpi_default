@@ -18,6 +18,8 @@ services:
       - IPFS_PROTOCOL=${IPFS_PROTOCOL}
       - APP_OPEN_GRAPHQL=${APP_OPEN_GRAPHQL}
       - RPI_HOST_AND_PORT=${RPI_HOST_AND_PORT}
+      - DEFAULT_LAUNCH_PLATFORM=${DEFAULT_LAUNCH_PLATFORM}
+      - DEFAULT_LAUNCH_APPID=${DEFAULT_LAUNCH_APPID}
       - WAIT_HOSTS=127.0.0.1:27017
     network_mode: host
     expose:
@@ -30,7 +32,7 @@ services:
     depends_on:
       - redis
       - mongodb
-      - ipfs
+      # - ipfs
     devices:
       - "/dev/ttyUSB0:/dev/ttyUSB0"
       - "/dev/ttyAMA0:/dev/ttyAMA0"
