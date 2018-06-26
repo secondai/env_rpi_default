@@ -39,7 +39,8 @@ services:
     volumes:
       - /boot:/boot
     privileged: true
-    command: ["./wait-for-it.sh", "127.0.0.1:27017", "--", "npm", "run", "pi"]
+    command: ["/usr/src/app/wait-for-it.sh", "127.0.0.1:27017", "--", "npm", "run", "pi"]
+    # /usr/src/app/wait-for-it.sh
 
   redis:
     image: hypriot/rpi-redis
