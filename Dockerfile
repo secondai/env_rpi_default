@@ -16,7 +16,7 @@ RUN apt-key adv --fetch-keys http://dl.yarnpkg.com/debian/pubkey.gpg && \
    echo "deb http://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
 
 RUN sudo apt-get update
-RUN sudo apt-get install -y wget curl bluetooth bluez libbluetooth-dev libudev-dev build-essential git python alsa-base alsa-utils festival festvox-kallpc16k
+RUN sudo apt-get install -y netcat wget curl bluetooth bluez libbluetooth-dev libudev-dev build-essential git python alsa-base alsa-utils festival festvox-kallpc16k
 
 #RUN wget https://nodejs.org/dist/v8.11.3/node-v8.11.3-linux-armv6l.tar.gz \
 # && tar -xzf node-v8.11.3-linux-armv6l.tar.gz \
@@ -64,14 +64,15 @@ RUN npm install
 COPY . .
 
 ## Add the wait script to the image
-ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.2.1/wait /wait
-ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.2.1/wait wait
-RUN chmod +x /wait
-RUN chmod +x wait
+## - doesnt run on ARM! ...so dont use 
+#ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.2.1/wait /wait
+#RUN chmod +x /wait
 
 EXPOSE 7001
 
-#CMD [ "/wait", "&&", "npm", "run", "pi" ]
-CMD /wait && npm run pi
+CMD [ "npm", "run", "pi" ]
+
+# - if /wait worked, use the following: 
+#CMD /wait && npm run pi
 
 
