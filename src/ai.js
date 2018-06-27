@@ -4,6 +4,7 @@ import { spawn } from 'child_process';
 import bigi from 'bigi'
 import bitcoin from 'bitcoinjs-lib'
 
+import request from 'request-promise-native'
 
 // const stdlib = require('@stdlib/stdlib');
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
