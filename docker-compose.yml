@@ -21,6 +21,8 @@ services:
       - DEFAULT_LAUNCH_PLATFORM=${DEFAULT_LAUNCH_PLATFORM}
       - DEFAULT_LAUNCH_APPID=${DEFAULT_LAUNCH_APPID}
       - STELLAR_NETWORK=${STELLAR_NETWORK}
+      - WAIT_HOSTS=127.0.0.1:27017
+      - WAIT_HOSTS_TIMEOUT=60
     network_mode: host
     expose:
       - 7001
@@ -39,16 +41,16 @@ services:
     volumes:
       - /boot:/boot
     privileged: true
-    command: >
-      /bin/bash -c "
-        while ! nc -z 127.0.0.1 27017;
-        do
-          echo sleeping;
-          sleep 1;
-        done;
-        echo Connected!;
-        npm run pi;
-      "
+    # command: >
+    #   /bin/bash -c "
+    #     while ! nc -z 127.0.0.1 27017;
+    #     do
+    #       echo sleeping;
+    #       sleep 1;
+    #     done;
+    #     echo Connected!;
+    #     npm run pi;
+    #   "
     # command: ["/usr/src/app/wait-for-it.sh", "127.0.0.1:27017", "--", "npm", "run", "pi"]
     # /usr/src/app/wait-for-it.sh
 
