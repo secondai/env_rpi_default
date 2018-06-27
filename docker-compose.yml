@@ -40,9 +40,14 @@ services:
       - /boot:/boot
     privileged: true
     command: >
-      /bin/bash -c " 
-        sleep 15; 
-        npm run pi; 
+      /bin/bash -c "
+        while ! nc -z 127.0.0.1 27017;
+        do
+          echo sleeping;
+          sleep 1;
+        done;
+        echo Connected!;
+        npm run pi;
       "
     # command: ["/usr/src/app/wait-for-it.sh", "127.0.0.1:27017", "--", "npm", "run", "pi"]
     # /usr/src/app/wait-for-it.sh
