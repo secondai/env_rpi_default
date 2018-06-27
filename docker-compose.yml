@@ -49,6 +49,7 @@ services:
           sleep 10;
         done;
         echo Connected to 127.0.0.1:27017;
+        sleep 10;
         npm run pi;
       "
     # command: ["/usr/src/app/wait-for-it.sh", "127.0.0.1:27017", "--", "npm", "run", "pi"]
