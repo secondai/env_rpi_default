@@ -63,9 +63,6 @@ App.nodesDbParsedIds = {}; // _ids ref to App.nodesDbParsed object
 var queue = require('queue')
 let parallelVMs = {};
 
-
-process.env.DEFAULT_LAUNCH_PLATFORM = 'cloud'; // device, browser, etc.
-
 // Create Second 
 // - handle inputs 
 
