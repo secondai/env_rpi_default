@@ -90,17 +90,6 @@ services:
   #     - mongodb
   #   command: 127.0.0.1:27017
 
-  # ngrok:
-  #   build: https://github.com/nicholasareed/docker-rpi-ngrok.git
-  #   environment:
-  #     - NGROK_AUTH=${NGROK_AUTH}
-  #     - "NGROK_PORT=${COMPOSE_PROJECT_NAME}_web_1:7001"
-  #     - NGROK_SUBDOMAIN=${PUBLIC_SUBDOMAIN}
-  #   links:
-  #     - web:app
-
-  #   # ports:
-  #   #   - "4040:4040"
 
 volumes:
   mongodb-data:
@@ -108,9 +97,6 @@ volumes:
 
 
 
-
-# version: '3'
-# services:
 #   web:
 #     build: 
 #       context: .
@@ -143,47 +129,6 @@ volumes:
 #     volumes:
 #       - /boot:/boot
 
-#   redis:
-#     hostname: redis
-#     image: hypriot/rpi-redis
-#     network_mode: host
-#     expose:
-#       - 6379
-
-#   mongodb:
-#     image: ftavares/rpi-mongo:3.0.9
-#     hostname: mongodb
-#     network_mode: host
-#     expose:
-#       - 27017
-#       - 28017
-#     ports:
-#       - "28017:27017"
-#     command: ["mongod", "--journal", "--rest"]
-
-#   ipfs:
-#     # image: ipfs/go-ipfs
-#     image: jkms/rpi-go-ipfs
-#     # container_name: "ipfs"
-#     # restart: always
-#     expose: # internal links
-#       - 4001
-#       - 5001
-#       - 8080
-#     ports: # externally available
-#       - 4001:4001
-#       - 5001:5001
-#       - 8080:8080 
-#     volumes:
-#       - ipfs-data:/data
-
-#   start_dependencies:
-#     image: dadarek/wait-for-dependencies
-#     depends_on:
-#       - mongodb
-#     command: 127.0.0.1:27017
-#     network_mode: host
-
 #   # ngrok:
 #   #   build: https://github.com/nicholasareed/docker-rpi-ngrok.git
 #   #   environment:
@@ -195,8 +140,3 @@ volumes:
 
 #   #   # ports:
 #   #   #   - "4040:4040"
-
-# volumes:
-#   ipfs-data:
-
-
