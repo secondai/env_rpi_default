@@ -38,6 +38,7 @@ services:
     devices:
       - "/dev/ttyUSB0:/dev/ttyUSB0"
       - "/dev/ttyAMA0:/dev/ttyAMA0"
+      - /dev/snd
     volumes:
       - /boot:/boot
       - /usr/share/sounds/alsa/:/usr/share/sounds/alsa/
