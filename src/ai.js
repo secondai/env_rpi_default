@@ -2133,12 +2133,19 @@ const ThreadedSafeRun = (evalString, context = {}, requires = [], threadEventHan
               let onInstall = new Promise((resolve2)=>{
                 onInstallResolve = resolve2;
               });
+              let onRemoveResolve;
+              let onRemove = new Promise((resolve2)=>{
+                onRemoveResolve = resolve2;
+              });
               App.globalCache.packages[pkgName] = {
                 installing: false,
+                removing: false,
                 installed: false,
                 errorInstalling: null,
                 onInstallResolve,
                 onInstall
+                onRemoveResolve,
+                onRemove
               }
             }
             let pkg = App.globalCache.packages[pkgName];
@@ -2208,7 +2215,7 @@ const ThreadedSafeRun = (evalString, context = {}, requires = [], threadEventHan
                 installed: false,
                 errorInstalling: null,
                 onInstallResolve,
-                onInstall,
+                onInstall
                 onRemoveResolve,
                 onRemove
               }
