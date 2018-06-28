@@ -105,6 +105,7 @@
     "node-bluetooth":"^1.2.2",
     "nodemon": "^1.12.5",
     "noble":"^1.9.1",
+    "node-record-lpcm16":"0.3.0",
     "bleno":"^0.5.0",
     "npm": "5.7.1",
     "npm-programmatic": "0.0.10",

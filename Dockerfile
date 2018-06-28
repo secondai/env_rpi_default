@@ -16,7 +16,7 @@ RUN apt-key adv --fetch-keys http://dl.yarnpkg.com/debian/pubkey.gpg && \
    echo "deb http://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
 
 RUN sudo apt-get update
-RUN sudo apt-get install -y netcat wget curl bluetooth bluez libbluetooth-dev libudev-dev build-essential git python alsa-base alsa-utils festival festvox-kallpc16k
+RUN sudo apt-get install -y netcat wget curl bluetooth bluez libbluetooth-dev libudev-dev build-essential git python alsa-base alsa-utils festival festvox-kallpc16k sox libsox-fmt-all
 
 #RUN wget https://nodejs.org/dist/v8.11.3/node-v8.11.3-linux-armv6l.tar.gz \
 # && tar -xzf node-v8.11.3-linux-armv6l.tar.gz \
