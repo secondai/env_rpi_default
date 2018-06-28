@@ -40,6 +40,7 @@ services:
       - "/dev/ttyAMA0:/dev/ttyAMA0"
     volumes:
       - /boot:/boot
+      - /usr/share/sounds/alsa/:/usr/share/sounds/alsa/
     privileged: true
     command: >
       /bin/bash -c "
