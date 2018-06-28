@@ -2143,7 +2143,7 @@ const ThreadedSafeRun = (evalString, context = {}, requires = [], threadEventHan
                 installed: false,
                 errorInstalling: null,
                 onInstallResolve,
-                onInstall
+                onInstall,
                 onRemoveResolve,
                 onRemove
               }
@@ -2217,7 +2217,7 @@ const ThreadedSafeRun = (evalString, context = {}, requires = [], threadEventHan
                 installed: false,
                 errorInstalling: null,
                 onInstallResolve,
-                onInstall
+                onInstall,
                 onRemoveResolve,
                 onRemove
               }
