@@ -2182,7 +2182,9 @@ const ThreadedSafeRun = (evalString, context = {}, requires = [], threadEventHan
               console.log(`Exec Result: ${stdout}`);
               
               // resolve all waiting scripts (including in this block) 
-              pkg.onInstallResolve(true);
+              if(pkg.onInstallResolve){
+              	pkg.onInstallResolve(true);
+              }
               pkg.installed = true;
               pkg.installing = false;
               
@@ -2246,7 +2248,9 @@ const ThreadedSafeRun = (evalString, context = {}, requires = [], threadEventHan
               console.log(`Exec Result: ${stdout}`);
               
               // resolve all waiting scripts (including in this block) 
-              pkg.onRemoveResolve(true);
+              if(pkg.onRemoveResolve){
+              	pkg.onRemoveResolve(true);
+              }
               pkg.installed = false;
               pkg.removing = false;
               pkg.errorInstalling = false; // allow re-install
