@@ -9,6 +9,12 @@ const lodash = require('lodash');
 
 console.log('ENV:', process.env);
 
+
+
+process.on('uncaughtException', (err) => {
+  consle.error('uncaughtException:', err);
+})
+
 // Check for required environment variables 
 // - TODO: load fom config file shipped with environment 
 let expectedEnvVars = [
