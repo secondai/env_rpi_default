@@ -50,18 +50,18 @@
 # #RUN curl -o- -L https://yarnpkg.com/install.sh | bash
 # RUN sudo apt-get install -y yarn
 
-FROM nickreed/rpi-second-basepackages
+FROM nickreed/rpi-second-basepackages-withnode
 
-# Create app directory
-RUN mkdir -p /usr/src/app
+# # Create app directory
+# RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
-COPY package*.json ./
+# COPY package*.json ./
 
 #RUN yarn install --verbose
 #RUN yarn install --verbose --non-interactive
 # RUN npm install --non-interactive
-RUN npm install
+# RUN npm install
 
 COPY . .
 
