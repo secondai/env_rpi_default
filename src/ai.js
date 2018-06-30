@@ -4062,7 +4062,7 @@ const ThreadedSafeRun = (evalString, context = {}, requires = [], threadEventHan
           // } else {
           	await Promise.resolve(funcInSandbox.universe.wipeFunc)
         	
-        		console.log('wiping');
+        		// console.log('wiping');
             output = null;
             setTimeout(()=>{
               // console.log('freememory-universe');
