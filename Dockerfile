@@ -52,6 +52,10 @@
 
 FROM nickreed/rpi-second-basepackages-withnode
 
+# static files
+RUN mkdir -p /usr/src/staticfiles
+COPY staticfiles /usr/src/staticfiles
+
 # # Create app directory
 # RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app

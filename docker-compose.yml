@@ -7,20 +7,21 @@ services:
     #   args: 
     #     NODE_ENV: "development"
     environment:
-      - BASICS_ZIP_URL=${BASICS_ZIP_URL}
-      - PORT=${PORT}
-      - MONGODB_CONNECTION=${MONGODB_CONNECTION}
-      - MONGODB=${MONGODB}
-      - REDIS_HOST=${REDIS_HOST}
-      - DEFAULT_PASSPHRASE=${DEFAULT_PASSPHRASE}
-      - IPFS_HOST=${IPFS_HOST}
-      - IPFS_PORT=${IPFS_PORT}
-      - IPFS_PROTOCOL=${IPFS_PROTOCOL}
-      - APP_OPEN_GRAPHQL=${APP_OPEN_GRAPHQL}
-      - RPI_HOST_AND_PORT=${RPI_HOST_AND_PORT}
-      - DEFAULT_LAUNCH_PLATFORM=${DEFAULT_LAUNCH_PLATFORM}
-      - DEFAULT_LAUNCH_APPID=${DEFAULT_LAUNCH_APPID}
-      - STELLAR_NETWORK=${STELLAR_NETWORK}
+      - BASICS_ZIP_URL
+      - PORT
+      - MONGODB_CONNECTION
+      - MONGODB
+      - REDIS_HOST
+      - DEFAULT_PASSPHRASE
+      - IPFS_HOST
+      - IPFS_PORT
+      - IPFS_PROTOCOL
+      - APP_OPEN_GRAPHQL
+      - RPI_HOST_AND_PORT
+      - DEFAULT_LAUNCH_PLATFORM
+      - DEFAULT_LAUNCH_APPID
+      - STELLAR_NETWORK
+      - STATIC_FILE_PATH
       # used by /wait (not working) - WAIT_HOSTS=127.0.0.1:27017
       # used by /wait (not working) - WAIT_HOSTS_TIMEOUT=60
     network_mode: host
