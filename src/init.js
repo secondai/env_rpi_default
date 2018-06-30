@@ -12,7 +12,7 @@ console.log('ENV:', process.env);
 
 
 process.on('uncaughtException', (err) => {
-  consle.error('uncaughtException:', err);
+  console.error('uncaughtException:', err);
 })
 
 // Check for required environment variables 
