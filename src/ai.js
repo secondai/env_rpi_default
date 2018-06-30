@@ -7,9 +7,6 @@ import bitcoin from 'bitcoinjs-lib'
 import request from 'request-promise-native'
 
 // const stdlib = require('@stdlib/stdlib');
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
-
-const {VM} = require('vm2');
 
 import _ from 'lodash'
 
@@ -24,6 +21,12 @@ import _ from 'lodash'
 //   await pluginManager.uninstall("moment");
 // }
 // runPlugins();
+
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
+
+const {VM} = require('vm2');
+
+const path = require('path');
 
 var cacheManager = require('cache-manager');
 
@@ -484,7 +487,7 @@ const loadRemoteZip = (url) => {
 	    //   });
 	    // }
 
-      function addChildren(path){
+      function addChildren(tmpPath){
         return new Promise(async (resolve,reject)=>{
         
           let nodes = [];
@@ -496,7 +499,7 @@ const loadRemoteZip = (url) => {
                 // console.log('NOT NODE:', filepath);
                 continue;
               }
-              let pathDepth = path.split('/').length;
+              let pathDepth = tmpPath.split('/').length;
               let filepathDepth = filepath.split('/').length;
               if(pathDepth == filepathDepth){
                 // xyz.json at correct depth
@@ -2005,6 +2008,7 @@ const ThreadedSafeRun = (evalString, context = {}, requires = [], threadEventHan
 
     let funcInSandbox = Object.assign({
       universe: {
+      	staticFilePath: path.resolve(process.env.STATIC_FILE_PATH || __dirname + '/staticfiles'), // where static files will be stored 
         runRequest: App.secondAI.MySecond.runRequest,
         npm: {
           install: npminstall
@@ -2035,7 +2039,7 @@ const ThreadedSafeRun = (evalString, context = {}, requires = [], threadEventHan
         	// if(!mypkg){
 
         	// }
-d
+
         },
         drequireInstall: ()=>{
         	// installs an npm package, 
