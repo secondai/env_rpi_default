@@ -2008,6 +2008,7 @@ const ThreadedSafeRun = (evalString, context = {}, requires = [], threadEventHan
 
     let funcInSandbox = Object.assign({
       universe: {
+      	__dirname: __dirname,
       	staticFilePath: path.resolve(process.env.STATIC_FILE_PATH || __dirname + '/staticfiles'), // where static files will be stored 
         runRequest: App.secondAI.MySecond.runRequest,
         npm: {
