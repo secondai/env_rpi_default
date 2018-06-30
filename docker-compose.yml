@@ -6,6 +6,12 @@ services:
     #   context: .
     #   args: 
     #     NODE_ENV: "development"
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 1s
+        max_attempts: 3
+        window: 120s
     environment:
       - BASICS_ZIP_URL
       - PORT
