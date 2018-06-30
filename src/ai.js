@@ -4057,22 +4057,22 @@ const ThreadedSafeRun = (evalString, context = {}, requires = [], threadEventHan
             data
           ); // sends up from subprocess/child
 
-          // if(output && output.keepVM === true){
-          //   // not used, always not kept (was maybe using when ob was nulled for scheduler...)
-          // } else {
-            output = null;
-            setTimeout(()=>{
-              // console.log('freememory-universe');
-              data = null;
-              ob = null;
+          // // if(output && output.keepVM === true){
+          // //   // not used, always not kept (was maybe using when ob was nulled for scheduler...)
+          // // } else {
+          //   output = null;
+          //   setTimeout(()=>{
+          //     // console.log('freememory-universe');
+          //     data = null;
+          //     ob = null;
 
-              // free memory here? delete the vm entirely? 
-              delete funcInSandbox.universe;
-              funcInSandbox = null;
-              vm = null;
+          //     // free memory here? delete the vm entirely? 
+          //     delete funcInSandbox.universe;
+          //     funcInSandbox = null;
+          //     vm = null;
 
-            },100);
-          // }
+          //   },100);
+          // // }
 
 
           // exit();
