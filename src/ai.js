@@ -4044,7 +4044,7 @@ const ThreadedSafeRun = (evalString, context = {}, requires = [], threadEventHan
       // process.send('OUTPUT:' + ob.evalString);
       // output could be a promise, so we just wait to resolve it (and resolving a value just returns the value :) )
       Promise.resolve(output)
-      .then(data=>{
+      .then(async (data)=>{
           // console.log(JSON.stringify(data));
           // process.stdout.write(JSON.stringify(
           //     data
@@ -4060,20 +4060,21 @@ const ThreadedSafeRun = (evalString, context = {}, requires = [], threadEventHan
           // if(output && output.keepVM === true){
           //   // not used, always not kept (was maybe using when ob was nulled for scheduler...)
           // } else {
-          	if(!funcInSandbox.universe.noWipe){
-	            output = null;
-	            setTimeout(()=>{
-	              // console.log('freememory-universe');
-	              data = null;
-	              ob = null;
+          	await Promise.resolve(funcInSandbox.universe.wipeFunc)
+        	
+        		console.log('wiping');
+            output = null;
+            setTimeout(()=>{
+              // console.log('freememory-universe');
+              data = null;
+              ob = null;
 
-	              // free memory here? delete the vm entirely? 
-	              delete funcInSandbox.universe;
-	              funcInSandbox = null;
-	              vm = null;
+              // free memory here? delete the vm entirely? 
+              delete funcInSandbox.universe;
+              funcInSandbox = null;
+              vm = null;
 
-	            },100);
-	          }
+            },100);
           // }
 
 
