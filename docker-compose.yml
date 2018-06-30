@@ -44,6 +44,7 @@ services:
       - /boot:/boot
       - /usr/share/sounds/alsa/:/usr/share/sounds/alsa/
       - /dev/snd:/dev/snd
+      - second-data:/usr/src/staticfiles
     privileged: true
     command: >
       /bin/bash -c "
@@ -97,6 +98,7 @@ services:
 
 
 volumes:
+  second-data:
   mongodb-data:
   ipfs-data:
 
