@@ -74,7 +74,11 @@ COPY . .
 #ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.2.1/wait /wait
 #RUN chmod +x /wait
 
+# second
 EXPOSE 7001
+
+#mopidy
+EXPOSE 6680
 
 CMD [ "npm", "run", "pi" ]
 

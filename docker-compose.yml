@@ -28,8 +28,10 @@ services:
     network_mode: host
     expose:
       - 7001
+      - 6680
     ports:
       - "7001:7001"
+      - "6680:6680"
     # links:
     #   - redis
     #   - mongodb
