@@ -77,7 +77,7 @@ COPY . .
 # second
 EXPOSE 7001
 
-#mopidy
+# mopidy
 EXPOSE 6680
 
 CMD [ "npm", "run", "pi" ]
