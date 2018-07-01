@@ -6,7 +6,6 @@ services:
     #   context: .
     #   args: 
     #     NODE_ENV: "development"
-    restart: on-failure
     environment:
       - BASICS_ZIP_URL
       - PORT
