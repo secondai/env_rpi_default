@@ -3576,6 +3576,9 @@ const ThreadedSafeRun = (evalString, context = {}, requires = [], threadEventHan
           });
         },
 
+        requestResponse: (action, data) => {
+        	return funcInSandbox.universe.httpResponse(action, data);
+        },
         httpResponse: (action, data) => {
           return new Promise(async (resolve, reject)=>{
 
