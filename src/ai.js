@@ -4,9 +4,14 @@ import { spawn } from 'child_process';
 import bigi from 'bigi'
 import bitcoin from 'bitcoinjs-lib'
 
+
 import request from 'request-promise-native'
 
+
 // const stdlib = require('@stdlib/stdlib');
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
+
+const {VM} = require('vm2');
 
 import _ from 'lodash'
 
@@ -21,12 +26,6 @@ import _ from 'lodash'
 //   await pluginManager.uninstall("moment");
 // }
 // runPlugins();
-
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
-
-const {VM} = require('vm2');
-
-const path = require('path');
 
 var cacheManager = require('cache-manager');
 
@@ -118,6 +117,7 @@ class Second {
 	    	console.error('--Disabled BASICS_ZIP_URL--');
 	    	return false;
 	    }
+
 
     	// Loading default nodes!
       const saveChildNodes = (nodeId, childNodes) => {
@@ -487,7 +487,7 @@ const loadRemoteZip = (url) => {
 	    //   });
 	    // }
 
-      function addChildren(tmpPath){
+      function addChildren(path){
         return new Promise(async (resolve,reject)=>{
         
           let nodes = [];
@@ -499,7 +499,7 @@ const loadRemoteZip = (url) => {
                 // console.log('NOT NODE:', filepath);
                 continue;
               }
-              let pathDepth = tmpPath.split('/').length;
+              let pathDepth = path.split('/').length;
               let filepathDepth = filepath.split('/').length;
               if(pathDepth == filepathDepth){
                 // xyz.json at correct depth
@@ -662,15 +662,49 @@ const incomingAIRequestWebsocket = ({ type, msg, clientId }) => {
 // Events (usually from inside a codeNode) 
 eventEmitter.on('command',async (message, socket) => {
 
+	let savedNode,
+		savedNodeCopy;
+
   let nodes,
   	nodeInMemoryIdx,
   	nodeInMemory;
 
 	let sqlFilter,
-		dataFilter;
+		dataFilter,
+		rootNodeFilter,
+		searchPath;
 
 	let useDataFilter,
 		useSqlFilter;
+
+
+
+	async function removeNodeAndChildren(nodeId){
+
+		let nodeInMemory = App.nodesDbParsedIds[nodeId];
+
+		if(!nodeInMemory){
+			console.error('Missing node in memory when ai.js/removeNodeAndChildren (not utils.removeNode yet)');
+			return false;
+		}
+
+		for(let node of nodeInMemory.nodes){
+			await removeNodeAndChildren(node._id);
+		}
+
+		let nodeIdx = App.nodesDb.findIndex(n=>{
+			return n._id == nodeId
+		});
+
+		let updatedNode = await App.graphql.removeNode({_id: nodeId});
+		let savedNodeCopy = JSON.parse(JSON.stringify(updatedNode));
+		App.nodesDb.splice(nodeIdx,1);
+		console.log('Removing from app.utils.removeNode');
+		await App.utils.removeNode(nodeId);
+
+		return savedNodeCopy;
+
+	}
 
   switch(message.command){
   	
@@ -766,6 +800,12 @@ eventEmitter.on('command',async (message, socket) => {
 
 			dataFilter = message.filter.dataFilter; // priority, easier/flexible 
 			sqlFilter = message.filter.sqlFilter;
+			rootNodeFilter = message.filter.rootNodeFilter;
+
+			// TODO (not sure if searchPath is necessary, or if nrequire ("node require") is more apt to returning single nodes where I know what I'm looking for (local react elements, etc) 
+			// - it gets away from the "everthing is easily replaceable" mindset when not array and type based (names are a pseudo-type) 
+			// - trying to avoid naming things, cuz that is one of the hard problems to solve 
+			searchPath = message.filter.searchPath; 
 
 			// using either underscore-query or lodash.filter (sqlFilter) 
 			if(!lodash.isEmpty(dataFilter)){
@@ -787,6 +827,21 @@ eventEmitter.on('command',async (message, socket) => {
 			} else {
 				// all nodes
 				nodes = App.nodesDbParsed;
+			}
+
+			// root node filter (if used)
+			if(rootNodeFilter){
+				// filter from root node outwards
+				// - TODO: memoize/cache (probably lots of overlap) 
+				// - node._root holds info for root node (might be self-referential!) 
+				nodes = lodash.query(nodes, {_root: rootNodeFilter});
+			}
+
+			if(searchPath){
+				// TODO: handle absolute and relative paths? 
+				// - for "relative" expect the "relative to" location 
+				//   - probably included from within a script? 
+				console.error('searchPath not used yet!');
 			}
 
 			// v3ish
@@ -865,7 +920,8 @@ eventEmitter.on('command',async (message, socket) => {
 				default:
 					// v4 (circular json) 
 					// - return everything vs. specify a path to retrieve info for 
-					returnNodesObj = cJSON.parse(cJSON.stringify(nodes));
+					// returnNodesObj = cJSON.parse(cJSON.stringify(nodes));
+					returnNodesObj = nodes;
 					break;
 
 			}
@@ -1020,15 +1076,34 @@ eventEmitter.on('command',async (message, socket) => {
   	case 'newNode':
 
   		// message.data = "filter"
-			let savedNode = await App.graphql.newNode(message.node);
+  		message.node.name = message.node.hasOwnProperty('name') ? message.node.name : uuidv4();
+			savedNode = await App.graphql.newNode(message.node);
 
 			// Update memory!
 			
 			// have a "wait until next resolution" before emitting afterUpdate? 
 			// - states: update-succeeded, updated-and-changes-available-after-reparse
+			savedNodeCopy = JSON.parse(JSON.stringify(savedNode));
 			
 			// TODO: figure out affected and only update as necessary! 
-  		App.nodesDb.push(savedNode);
+
+  		
+			try {
+				await App.utils.insertNode(savedNode);
+			}catch(err){
+				// failed updating
+			  eventEmitter.emit(
+			    'response',
+			    {
+			      // id      : ipc.config.id,
+			      id: message.id,
+			      data: false
+			    }
+			  );
+				return false;
+			}
+
+  		App.nodesDb.push(savedNodeCopy);
 
 			if(message.skipRebuild){
 				// skipping rebuild for now
@@ -1038,12 +1113,12 @@ eventEmitter.on('command',async (message, socket) => {
 				});
 			} else {
 				if(message.skipWaitForResolution){
-					App.utils.nodesDbParser()
-					.then(()=>{
+					// App.utils.nodesDbParser()
+					// .then(()=>{
 	      		App.eventEmitter.emit('node.afterCreate', savedNode);
-					});
+					// });
 		    } else {
-		    	await App.utils.nodesDbParser();
+		    	// await App.utils.nodesDbParser();
 	      	App.eventEmitter.emit('node.afterCreate', savedNode);
 		    }
 		  }
@@ -1053,7 +1128,7 @@ eventEmitter.on('command',async (message, socket) => {
 		    {
 		      // id      : ipc.config.id,
 		      id: message.id,
-		      data: savedNode
+		      data: savedNodeCopy
 		    }
 		  );
 
@@ -1065,26 +1140,63 @@ eventEmitter.on('command',async (message, socket) => {
   		// console.log('UpdateNode:', typeof message.node)
   		// console.log('UpdateNode2:', JSON.stringify(message.node, null,2))
 
-  		nodeInMemoryIdx = App.nodesDb.findIndex(n=>{ // App.nodesDbParsedIds[message.node._id];
-  			return n._id == message.node._id;
-  		});
+  		nodeInMemory = App.nodesDbParsedIds[message.node._id];
 
-  		if(nodeInMemoryIdx === -1){
-  			console.error('Node to update NOT in memory!', message.node._id);
-  			return false;
-  		}
+  		// if(!nodeInMemory){
+  		// 	console.error('Missing nodeInMemory for updateNode!', message.node._id);
+  		// 	return false;
+  		// }
+
+  		// nodeInMemoryIdx = App.nodesDb.findIndex(n=>{ // App.nodesDbParsedIds[message.node._id];
+  		// 	return n._id == message.node._id;
+  		// });
+
+  		// if(nodeInMemoryIdx === -1){
+  		// 	console.error('Node to update NOT in memory!', message.node._id);
+  		// 	return false;
+  		// }
 
   		// message.data = "filter"
-			let updatedNode;
+			let updatedNode = {};
   		if(message.node.active === false){
-  			console.log('RemoveNode');
-  			updatedNode = await App.graphql.removeNode(message.node);
-  			App.nodesDb.splice(nodeInMemoryIdx,1);
+  			// remove node 
+  			// - also removes all children 
+  			//   - recursively 
+  			console.log('RemoveNode (from updateNode)');
+  			try {
+					savedNodeCopy = await removeNodeAndChildren(message.node._id);
+				}catch(err){
+					console.error('RemoveNode error:', err);
+				  eventEmitter.emit(
+				    'response',
+				    {
+				      // id      : ipc.config.id,
+				      id: message.id,
+				      data: false
+				    }
+				  );
+  				return false;
+				}
+
   		} else {
   			console.log('UpdateNode');
-  			updatedNode = await App.graphql.updateNode(message.node);
-  			App.nodesDb.splice(nodeInMemoryIdx, 1, updatedNode);
-
+  			try {
+  				updatedNode = await App.graphql.updateNode(message.node); // returns full node! 
+  			}catch(err){
+  				// failed updating
+				  eventEmitter.emit(
+				    'response',
+				    {
+				      // id      : ipc.config.id,
+				      id: message.id,
+				      data: false
+				    }
+				  );
+  				return false;
+  			}
+  			savedNodeCopy = JSON.parse(JSON.stringify(updatedNode));
+  			// App.nodesDb.splice(nodeInMemoryIdx, 1, savedNodeCopy);
+  			await App.utils.updateNode(updatedNode, nodeInMemory);
   		}
 
 			// Update memory!
@@ -1103,17 +1215,17 @@ eventEmitter.on('command',async (message, socket) => {
 				});
 			} else {
 				if(message.skipWaitForResolution){
-					App.utils.nodesDbParser()
-					.then(()=>{
+					// App.utils.nodesDbParser()
+					// .then(()=>{
 	      		App.eventEmitter.emit('node.afterUpdate', updatedNode);
 		      	try {
 		      		JSON.stringify(updatedNode);
 		      	}catch(err){
 		      		console.error(err);
 		      	}
-					});
+					// });
 		    } else {
-		    	await App.utils.nodesDbParser();
+		    	// await App.utils.nodesDbParser();
 	      	App.eventEmitter.emit('node.afterUpdate', updatedNode);
 	      	try {
 	      		JSON.stringify(updatedNode);
@@ -1130,7 +1242,7 @@ eventEmitter.on('command',async (message, socket) => {
 		    {
 		      // id      : ipc.config.id,
 		      id: message.id,
-		      data: updatedNode
+		      data: savedNodeCopy
 		    }
 		  );
 
@@ -1152,8 +1264,11 @@ eventEmitter.on('command',async (message, socket) => {
   		console.log('RemoveNode');
 
   		// message.data = "filter"
-			let removedNode = await App.graphql.removeNode(message.node);
-			App.nodesDb.splice(nodeInMemoryIdx,1);
+			// let removedNode = await App.graphql.removeNode(message.node);
+			// App.nodesDb.splice(nodeInMemoryIdx,1);
+			// await App.utils.removeNode(message.node._id);
+
+			let removedNode = removeNodeAndChildren(message.node._id);
 
 			// Update memory!
 			if(message.skipRebuild){
@@ -1164,12 +1279,12 @@ eventEmitter.on('command',async (message, socket) => {
 				});
 			} else {
 				if(message.skipWaitForResolution){
-					App.utils.nodesDbParser()
-					.then(()=>{
+					// App.utils.nodesDbParser()
+					// .then(()=>{
 	      		App.eventEmitter.emit('node.afterUpdate', message.node);
-					});
+					// });
 		    } else {
-		    	await App.utils.nodesDbParser();
+		    	// await App.utils.nodesDbParser();
 		    }
 		  }
 
@@ -1188,9 +1303,9 @@ eventEmitter.on('command',async (message, socket) => {
   	case 'rebuildMemory':
 
 			if(message.skipWaitForResolution){
-				App.utils.nodesDbParser();
+				// App.utils.nodesDbParser();
 			} else {
-				await App.utils.nodesDbParser();
+				// await App.utils.nodesDbParser();
 			}
 
 		  eventEmitter.emit(
@@ -1389,8 +1504,9 @@ eventEmitter.on('command',async (message, socket) => {
 	  		let responseFunc = requestsCache[message.requestId].socketioResponseFunc;
   			if(responseFunc){
   				// socketio request/response 
-	  			console.log('Responding via socketio instead of httpResponse (came in as socketio request)');
-	  			console.log('clientId:', requestsCache[message.requestId].wsClientId, responseFunc ? 'responseFunc exists':'responseFunc MISSING'););
+
+	        console.log('Responding via socketio instead of httpResponse (came in as socketio request)');
+	  			console.log('clientId:', requestsCache[message.requestId].wsClientId, responseFunc ? 'responseFunc exists':'responseFunc MISSING');
 					
 					responseFunc(message.data);
 
@@ -1398,7 +1514,7 @@ eventEmitter.on('command',async (message, socket) => {
   				// normal webosockets 
 	  			console.log('Responding via websocket instead of httpResponse (came in as websocket request)');
 	  			console.log('clientId:', requestsCache[message.requestId].wsClientId);
-	  			console.log('wsRequestId:', requestsCache[message.requestId].keyvalue.wsRequestId,);
+	  			console.log('wsRequestId:', requestsCache[message.requestId].keyvalue.wsRequestId);
 
 	  			let thisWs = App.wsClients[ requestsCache[message.requestId].wsClientId ].ws;
 					
@@ -2008,8 +2124,8 @@ const ThreadedSafeRun = (evalString, context = {}, requires = [], threadEventHan
 
     let funcInSandbox = Object.assign({
       universe: {
-      	__dirname: __dirname,
-      	staticFilePath: path.resolve(process.env.STATIC_FILE_PATH || __dirname + '/staticfiles'), // where static files will be stored 
+        __dirname: __dirname,
+        staticFilePath: path.resolve(process.env.STATIC_FILE_PATH || __dirname + '/staticfiles'), // where static files will be stored
         runRequest: App.secondAI.MySecond.runRequest,
         npm: {
           install: npminstall
@@ -2022,31 +2138,31 @@ const ThreadedSafeRun = (evalString, context = {}, requires = [], threadEventHan
         lodash,
         required, // "requires" libs
         require,
-        // shim'd "dynamic require" from universe, so that we can rename/alias packages that are dynamically installed 
-        // - only works with github urls (need a solution for easily forking, renaming in package.json) 
+        // shim'd "dynamic require" from universe, so that we can rename/alias packages that are dynamically installed
+        // - only works with github urls (need a solution for easily forking, renaming in package.json)
         drequire: (pkgName, semVerComparison, installationPackageUrl)=>{
-        	// // TODO:
-        	// // for the pkgName, see if we have a semver match using semVerComparison, and return the best match (sort, findLastValid) 
-        	// // - if no match, then install using installationPackageUrl
-
-        	// // expecting installationPackageUrl's package.json's name to be pkgName+pkgVersion 
-        	// // - if it isn't, faillure 
-
-        	// // expecting/mandating that the package match the version, and the name matches? 
-        	// let mypkg = universe.drequire('package-name',{
-        	// 	version: '0.1.3',
-        	// 	onMissing: 'github.com/nicholasareed/url.git#branchname'
-        	// })
-        	// if(!mypkg){
-
-        	// }
-
-        },
-        drequireInstall: ()=>{
-        	// installs an npm package, 
-        	// - caches, validates 
-        	// - used as a temporary measure for dynamic packages 
-        },
+               // // TODO:
+               // // for the pkgName, see if we have a semver match using semVerComparison, and return the best match (sort, findLastValid)
+               // // - if no match, then install using installationPackageUrl
+ 
+               // // expecting installationPackageUrl's package.json's name to be pkgName+pkgVersion
+               // // - if it isn't, faillure
+ 
+               // // expecting/mandating that the package match the version, and the name matches?
+               // let mypkg = universe.drequire('package-name',{
+               //      version: '0.1.3',
+               //      onMissing: 'github.com/nicholasareed/url.git#branchname'
+               // })
+               // if(!mypkg){
+ 
+               // }
+ 
+				},
+				drequireInstall: ()=>{
+				     // installs an npm package,
+				     // - caches, validates
+				     // - used as a temporary measure for dynamic packages
+				},
         jsSchema,
         rsa,
         bitcoin,
@@ -2085,68 +2201,6 @@ const ThreadedSafeRun = (evalString, context = {}, requires = [], threadEventHan
             setTimeout(resolve,ms)
           })
         },
-        // pkg: {
-        // 	install: (name, version, link)=>{
-        // 		// yarn add fake-name@npm:left-pad
-
-	       //    return new Promise((resolve,reject)=>{
-	       //      // create global package tracker
-	       //      console.log('installPackage1');
-	       //      App.globalCache.packages = App.globalCache.packages || {};
-	       //      if(!App.globalCache.packages[pkgName]){
-	       //        let onInstallResolve;
-	       //        let onInstall = new Promise((resolve2)=>{
-	       //          onInstallResolve = resolve2;
-	       //        });
-	       //        App.globalCache.packages[pkgName] = {
-	       //          installing: false,
-	       //          installed: false,
-	       //          errorInstalling: null,
-	       //          onInstallResolve,
-	       //          onInstall
-	       //        }
-	       //      }
-	       //      let pkg = App.globalCache.packages[pkgName];
-	       //      console.log('pkg:', pkg);
-	       //      if(pkg.installing){
-	       //        console.log('waiting for install, in progress');
-	       //        return pkg.onInstall.then(resolve);
-	       //      }
-	       //      if(pkg.installed){
-	       //        // all good, return resolved
-	       //        console.log('installed already, ok!');
-	       //        return resolve(true);
-	       //      }
-	            
-	       //      if(pkg.errorInstalling){
-	       //        console.log('Unable to load, previous error installing (try uninstalling, then reinstalling)');
-	       //        return resolve(false);
-	       //      }
-	            
-	       //      // install
-	       //      pkg.installing = true;
-	       //      const { exec } = require('child_process');
-	       //      exec('yarn add install ' + pkgName, (err, stdout, stderr) => {
-	       //        if (err) {
-	       //          console.error(`exec error installing package!: ${err}`);
-	       //          pkg.installing = false;
-	       //          pkg.errorInstalling = true;
-	       //          return;
-	       //        }
-	       //        console.log(`Exec Result: ${stdout}`);
-	              
-	       //        // resolve all waiting scripts (including in this block) 
-	       //        pkg.onInstallResolve(true);
-	       //        pkg.installed = true;
-	       //        pkg.installing = false;
-	              
-	       //      });
-	            
-	       //      pkg.onInstall.then(resolve);
-	            
-	       //    });
-        // 	}
-        // },
         checkPackage: (pkgName)=>{
           App.globalCache.packages = App.globalCache.packages || {};
           return App.globalCache.packages[pkgName] || {};
@@ -3714,14 +3768,100 @@ const ThreadedSafeRun = (evalString, context = {}, requires = [], threadEventHan
           });
 
         },
+
+        runNodeCodeInVMInMemory: (opts) => {
+          return new Promise(async (resolve, reject)=>{
+
+            // same as runNodeCodeInVM, except NO JSON.stringify 
+            // - skips the whole ThreadedSafeRun request, just makes it directly (runSafe is called) 
+
+            if(!opts.codeNode){
+              console.error('Missing codeNode for runNodeCodeInVM');
+              return reject();
+            }
+            if(!opts.codeNode.data){
+              console.error('Missing codeNode.data for runNodeCodeInVM');
+              return reject();
+            }
+            if(!opts.codeNode.data.code){
+              console.error('Missing codeNode.data.code for runNodeCodeInVM');
+              return reject();
+            }
+
+            try {
+
+              var code = opts.codeNode.data.code;
+
+              var datetime = (new Date());
+
+				  		var safeContext = {
+				  			SELF: opts.codeNode, // code node
+				  			INPUT: opts.dataNode || opts.inputNode, 
+				  		}
+				  		var requires = ['lodash'];
+				  		var threadEventHandlers = {};
+				  		var mainIpcId = ob.mainIpcId;
+				  		var nodeId = ob.nodeId;
+				  		var timeout = null; //60 * 1000;
+
+							var safedData;
+				      try {
+				        safedData = await runSafe({ code, safeContext, requires, threadEventHandlers, requestId, mainIpcId, nodeId, timeout})
+				      }catch(err){
+				      	console.error('Failed runNodeCodeInVMInMemory', err);
+							  return reject(); // allow workers to continue
+				      }
+
+              // setupIpcWatcher({
+              //   command: 'ThreadedSafeRun',
+              //   code: code,
+              //   SELF: opts.codeNode,
+              //   INPUT: opts.dataNode || opts.inputNode,
+              //   requestId: ob ? ob.requestId : uuidv4(), // from ob.context!!
+              //   mainIpcId: ob ? ob.mainIpcId : uuidv4(),
+              //   nodeId: opts.codeNode._id,
+              //   timeout: opts.timeout,
+              //   workGroup: opts.workGroup,
+              //   workers: opts.workers,
+              //   datetime: datetime.getSeconds() + '.' + datetime.getMilliseconds()
+              // }, (r)=>{
+              //   resolve(r.data);
+              // })
+              console.log('Returning safedData from runNodeCodeInVMInMemory');
+
+              return resolve(safedData);
+
+            } catch(err){
+              console.error('Failed runNodeCodeInVMInMemory', err, Object.keys(opts.codeNode));
+            }
+
+
+          });
+
+        },
         searchMemory: (opts) => {
           return new Promise(async (resolve, reject)=>{
             App.sm123 = App.sm123 || 1;
             let sm123 = App.sm123 + 0;
             App.sm123++;
 
-            console.log('Running searchMemory', sm123);
+            // console.log('Running searchMemory', sm123);
 
+	          function getParentNodes(node){
+	            let nodes = [node];
+	            if(node.nodeId && !node.parent){
+	              // console.error('parent chain broken in sameAppPlatform', node.type, node._id);
+	              throw 'parent chain broken in sameAppPlatform'
+	            }
+	            if(node.parent){
+	              nodes = nodes.concat(getParentNodes(node.parent));
+	            }
+	            return nodes;
+	          }
+
+	          // if parent chain doesnt exist (or is broken) then just rebuild on-the-fly? 
+	          // - using reference version of nodesDb (w/ parents, children) 
+	         
             // resolve('universe result! ' + ob.context.tenant.dbName);
             // console.log('searchMemory1');
             opts = opts || {};
@@ -3729,7 +3869,78 @@ const ThreadedSafeRun = (evalString, context = {}, requires = [], threadEventHan
             opts.filter = opts.filter || {};
             opts.filter.sqlFilter = opts.filter.sqlFilter || {};
             opts.filter.dataFilter = opts.filter.dataFilter || {}; // underscore-query
+            opts.filter.sameAppPlatform = opts.filter.sameAppPlatform ? true:false;
             // console.log('FetchNodes:', opts.filter.sqlFilter);
+            // opts.filter.rootNodeFilter = opts.filter.rootNodeFilter; // underscore-query
+
+            // if sameAppPlatform==true, then find and require for _root 
+            // - $and for existing query, unless already isObject and has $and
+            if(opts.filter.sameAppPlatform){
+            	// build additional query for sameAppPlatform
+            	// - expecting opts.SELF code of search origin 
+            	try {
+
+			          let parentNodes = getParentNodes(App.nodesDbParsedIds[opts.SELF._id]);
+
+			          // see if first match of each is correct (aka "outwards" (not from root, but from nodes)) 
+			          let platformClosest = lodash.find(parentNodes, node=>{
+			            return (
+			              node.type.split(':')[0] == 'platform_nodes'
+			            )
+			          });
+			          let appBaseClosest = lodash.find(parentNodes, node=>{
+			            return (
+			              node.type.split(':')[0] == 'app_base'
+			              ||
+			              node.type.split(':')[0] == 'app_parts'
+			            )
+			          });
+
+	            	let sapQuery = {
+	            		$or: [{
+		            		'_root.type': {
+		            			$like: 'app_base'
+		            		},
+		            		'_root.type': {
+		            			$like: 'app_parts'
+		            		},
+		            	}],
+	            		'_root.data.appId': appBaseClosest.data.appId,
+	            		'_root.nodes': {
+	            			$elemMatch: {
+	            				type: {
+	            					$like: 'platform_nodes'
+	            				},
+	            				'data.platform': platformClosest.data.platform
+	            			}
+	            		}
+	            	}
+
+	            	console.log('sapQuery:', sapQuery);
+
+
+	            	if(lodash.isArray(opts.filter.dataFilter)){
+	            		// array is treated as "or"?
+	            		console.error('Unexpected opts.filter.dataFilter is array');
+	            	} else if(lodash.isObject(opts.filter.dataFilter)){
+	            		if(opts.filter.dataFilter['$and']){
+	            			// push to existing
+	            			opts.filter.dataFilter['$and'].push(sapQuery);
+	            		} else {
+	            			// no existing "$and", add it 
+	            			opts.filter.dataFilter = {
+	            				$and: [opts.filter.dataFilter,sapQuery]
+	            			}
+	            		}
+	            	} else {
+	            		console.error('unexpected dataFilter when sameAppPlatform');
+	            	}
+	            }catch(err){
+	            	console.error('sameAppPlatform Failed:', err);
+	            }
+            }
+
+            console.log('dataFilter:', opts.filter.dataFilter);
 
             // Check cache 
             if(opts.cache && (process.env.IGNORE_MEMORY_CACHE || '').toString() !== 'true'){
@@ -4064,12 +4275,12 @@ const ThreadedSafeRun = (evalString, context = {}, requires = [], threadEventHan
             data
           ); // sends up from subprocess/child
 
+          // prevent wipe for awhile 
+          await Promise.resolve(funcInSandbox.universe.wipeFunc)
+
           // if(output && output.keepVM === true){
           //   // not used, always not kept (was maybe using when ob was nulled for scheduler...)
           // } else {
-          	await Promise.resolve(funcInSandbox.universe.wipeFunc)
-        	
-        		// console.log('wiping');
             output = null;
             setTimeout(()=>{
               // console.log('freememory-universe');
@@ -4088,7 +4299,7 @@ const ThreadedSafeRun = (evalString, context = {}, requires = [], threadEventHan
           // exit();
       })
       .catch(err=>{
-        console.error('---Failed in VM1!!!---- internal_server_error. --', err);
+        console.error('---Failed in VM1!!!---- internal_server_error. --', ob.nodeId, err);
         resolve({
           type: 'internal_server_error_public_output:0.0.1:local:3298ry2398h3f',
           data: {
@@ -4101,7 +4312,7 @@ const ThreadedSafeRun = (evalString, context = {}, requires = [], threadEventHan
         });
       })
     }catch(err){
-      console.error('---Failed in VM2!!!----', err);
+      console.error('---Failed in VM2!!!----', ob.nodeId, err);
       resolve({
           type: 'internal_server_error_public_output:0.0.1:local:3298ry2398h3f',
           data: {
