@@ -59,8 +59,6 @@ services:
         sleep 10;
         npm run pi;
       "
-    # command: ["/usr/src/app/wait-for-it.sh", "127.0.0.1:27017", "--", "npm", "run", "pi"]
-    # /usr/src/app/wait-for-it.sh
 
   redis:
     image: hypriot/rpi-redis
@@ -72,7 +70,6 @@ services:
     ports:
       - "27017:27017"
     command: ["mongod", "--journal", "--rest"]
-    # not sure if the following works, cuz VOLUME is not specified in Dockerfile for ftavares/rpi-mongo:3.0.9
     volumes:
       - mongodb-data:/data/db
 
@@ -103,49 +100,3 @@ volumes:
   mongodb-data:
   ipfs-data:
   # second-data:
-
-
-
-#   web:
-#     build: 
-#       context: .
-#       args: 
-#         NODE_ENV: "development"
-#     environment:
-#       - MONGODB
-#       - PORT_ON
-#       - LANGUAGE_SERVER
-#       - BASICS_ZIP_URL
-#       - DEFAULT_PASSPHRASE
-#       - WAIT_HOSTS=mongodb:27017
-#     # image: nickreed/rpi-second:latest
-#     # volumes:
-#     #   - .:/usr/src/app
-#     privileged: true
-#     network_mode: host
-#     ports:
-#       - "7001:7001"
-#     # links:
-#     #   - redis
-#     #   - mongodb
-#     depends_on:
-#       - redis
-#       - mongodb
-#       - ipfs
-#     devices:
-#       - "/dev/ttyUSB0:/dev/ttyUSB0"
-#       - "/dev/ttyAMA0:/dev/ttyAMA0"
-#     volumes:
-#       - /boot:/boot
-
-#   # ngrok:
-#   #   build: https://github.com/nicholasareed/docker-rpi-ngrok.git
-#   #   environment:
-#   #     - NGROK_AUTH=${NGROK_AUTH}
-#   #     - "NGROK_PORT=${COMPOSE_PROJECT_NAME}_web_1:7001"
-#   #     - NGROK_SUBDOMAIN=${PUBLIC_SUBDOMAIN}
-#   #   links:
-#   #     - web:app
-
-#   #   # ports:
-#   #   #   - "4040:4040"
