@@ -15,6 +15,8 @@ const {VM} = require('vm2');
 
 import _ from 'lodash'
 
+import path from 'path'
+
 // import {PluginManager} from "live-plugin-manager";
 // const pluginManager = new PluginManager();
 // async function runPlugins() {
