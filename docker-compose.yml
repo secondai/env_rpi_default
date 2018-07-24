@@ -1,6 +1,6 @@
 version: '3'
 services:
-  web:
+  second:
     image: nickreed/rpi-second:latest
     # build: 
     #   context: .
