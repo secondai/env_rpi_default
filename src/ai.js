@@ -2254,7 +2254,7 @@ const ThreadedSafeRun = (evalString, context = {}, requires = [], threadEventHan
               console.log('Unable to load, previous error installing (try uninstalling, then reinstalling)');
               return resolve(false);
             }
-            
+
             // install
             pkg.installing = true;
             const { exec } = require('child_process');
@@ -3116,37 +3116,38 @@ const ThreadedSafeRun = (evalString, context = {}, requires = [], threadEventHan
 
             // Returns the Node for the capability specified
             let capabilityNodes = await funcInSandbox.universe.searchMemory({
+            	SELF: codeNode, // derived from this universe instance
               filter: {
-                sqlFilter: {
-                  type: "capability:0.0.1:local:187h78h23",
-                  // nodeId: null, // NEW: app-level. OLD: top-level/root,
-                  data: {
-                    key: nameSemver // todo: semver with version!
-                  }
+              	sameAppPlatform: true,
+                dataFilter: {
+                  type: {
+                  	$like: 'capability:'
+                  },
+                  'data.key' : nameSemver
                 },
-                filterNodes: tmpNodes=>{
-                  return new Promise((resolve, reject)=>{
-                    // tmpNodes = tmpNodes.filter(tmpNode=>{
-                    //   return tmpNode.data.method == 'read';
-                    // })
+                // filterNodes: tmpNodes=>{
+                //   return new Promise((resolve, reject)=>{
+                //     // tmpNodes = tmpNodes.filter(tmpNode=>{
+                //     //   return tmpNode.data.method == 'read';
+                //     // })
 
-                    // try {
-                    //   console.log('platformClosest._id', platformClosest._id);
-                    // }catch(err){
-                    //   console.error('NO PLATFORMClOSEST');
-                    // }
-                    tmpNodes = lodash.filter(tmpNodes, tmpNode=>{
+                //     // try {
+                //     //   console.log('platformClosest._id', platformClosest._id);
+                //     // }catch(err){
+                //     //   console.error('NO PLATFORMClOSEST');
+                //     // }
+                //     tmpNodes = lodash.filter(tmpNodes, tmpNode=>{
 
-                      if(funcInSandbox.universe.isParentOf(platformClosest._id, tmpNode)){
-                        // console.log('FOUND IT UNDER SAME APP!!!!!', tmpNode._id);
-                        // console.log('FOUND PARENT1!');
-                        return true;
-                      }
-                      return false;
-                    })
-                    resolve(tmpNodes);
-                  });
-                },
+                //       if(funcInSandbox.universe.isParentOf(platformClosest._id, tmpNode)){
+                //         // console.log('FOUND IT UNDER SAME APP!!!!!', tmpNode._id);
+                //         // console.log('FOUND PARENT1!');
+                //         return true;
+                //       }
+                //       return false;
+                //     })
+                //     resolve(tmpNodes);
+                //   });
+                // },
               }
             });
             // capabilityNodes = universe.lodash.sortBy(capabilityNodes,capNode=>{
@@ -3157,9 +3158,9 @@ const ThreadedSafeRun = (evalString, context = {}, requires = [], threadEventHan
             if(!capabilityNodes || !capabilityNodes.length){
               console.error('Unable to find capability!', nameSemver);
 
-              let allNodes = await funcInSandbox.universe.searchMemory({});
+              // let allNodes = await funcInSandbox.universe.searchMemory({});
               console.error('Failed capabilityNode',nameSemver); //, allNodes);
-              debugger;
+              // debugger;
 
               return reject();
             }
@@ -3903,6 +3904,7 @@ const ThreadedSafeRun = (evalString, context = {}, requires = [], threadEventHan
 		            		'_root.type': {
 		            			$like: 'app_base'
 		            		},
+		            	},{
 		            		'_root.type': {
 		            			$like: 'app_parts'
 		            		},
@@ -3918,7 +3920,7 @@ const ThreadedSafeRun = (evalString, context = {}, requires = [], threadEventHan
 	            		}
 	            	}
 
-	            	console.log('sapQuery:', sapQuery);
+	            	// console.log('sapQuery:', sapQuery);
 
 
 	            	if(lodash.isArray(opts.filter.dataFilter)){
@@ -3942,7 +3944,7 @@ const ThreadedSafeRun = (evalString, context = {}, requires = [], threadEventHan
 	            }
             }
 
-            console.log('dataFilter:', opts.filter.dataFilter);
+            // console.log('dataFilter:', JSON.stringify(opts.filter.dataFilter,null,2));
 
             // Check cache 
             if(opts.cache && (process.env.IGNORE_MEMORY_CACHE || '').toString() !== 'true'){
@@ -4259,8 +4261,9 @@ const ThreadedSafeRun = (evalString, context = {}, requires = [], threadEventHan
     //   });
     // })
 
+    let output;
     try {
-      let output = vm.run(ob.evalString);
+      output = vm.run(ob.evalString);
       // process.send('OUTPUT:' + ob.evalString);
       // output could be a promise, so we just wait to resolve it (and resolving a value just returns the value :) )
       Promise.resolve(output)
@@ -4301,7 +4304,7 @@ const ThreadedSafeRun = (evalString, context = {}, requires = [], threadEventHan
           // exit();
       })
       .catch(err=>{
-        console.error('---Failed in VM1!!!---- internal_server_error. --', ob.nodeId, err);
+        console.error('---Failed in VM1!!!---- internal_server_error. --', ob.nodeId, err, err.toString ? err.toString():null, output);
         resolve({
           type: 'internal_server_error_public_output:0.0.1:local:3298ry2398h3f',
           data: {
@@ -4314,7 +4317,7 @@ const ThreadedSafeRun = (evalString, context = {}, requires = [], threadEventHan
         });
       })
     }catch(err){
-      console.error('---Failed in VM2!!!----', ob.nodeId, err);
+      console.error('---Failed in VM2!!!----', ob.nodeId, err, err.toString ? err.toString():null);
       resolve({
           type: 'internal_server_error_public_output:0.0.1:local:3298ry2398h3f',
           data: {
